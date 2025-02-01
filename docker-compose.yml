@@ -1,0 +1,43 @@
+version: '3'
+services:
+  frontend:
+    build: ./KanbanBoard
+    ports:
+      
+      - "5173:5173"
+    depends_on:
+      -  backend
+    environment:
+      -  VUE_APP_API_URL=http://localhost:5001/
+    volumes:
+      -  ./KanbanBoard:/app
+      -  /app/node_modules
+
+  backend:
+    build: ./KanbanBackend
+    ports:
+      
+      -  "5001:5000"
+    depends_on:
+      -   db    # เพิ่มการพึ่งพา database
+    environment:
+      -   DATABASE_URL=postgresql://postgres:postgres@db:5432/kanban    # เพิ่ม connection string
+    volumes:
+      -  ./KanbanBackend:/app
+      -  /app/node_modules
+
+  # เพิ่มส่วนของ PostgreSQL database
+  db:
+    image: postgres:latest
+    ports:
+      
+      -  "5432:5432"
+    environment:
+      -  POSTGRES_USER=postgres
+      -  POSTGRES_PASSWORD=postgres
+      -  POSTGRES_DB=kanban
+    volumes:      
+      -  postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
